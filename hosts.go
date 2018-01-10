@@ -1,4 +1,4 @@
-package dns
+package proxyhost
 
 import (
 	"bufio"
@@ -7,22 +7,23 @@ import (
 	"strings"
 )
 
-func init() {
+var hosts map[string]string
 
+func init() {
+	var err error
+	hosts, err = readHosts("./hosts")
+	if err != nil {
+		fmt.Println("hosts file not found.")
+	}
 }
 
 //FindIP get ip of host name
 func FindIP(host string) (string, bool) {
-	hosts, err := readHosts()
-	if err != nil {
-		fmt.Println(err)
-		return "", false
-	}
 	val, ok := hosts[host]
 	return val, ok
 }
 
-func readHosts() (map[string]string, error) {
+func readHosts(hostPath string) (map[string]string, error) {
 	hosts := make(map[string]string)
 	file, err := os.Open(hostPath)
 	defer file.Close()
