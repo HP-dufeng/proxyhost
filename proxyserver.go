@@ -16,13 +16,13 @@ func StartServer(port string) {
 
 	l, err := net.Listen("tcp", ":"+port)
 	if err != nil {
-		log.Panic(err)
+		// log.Panic(err)
 	}
 
 	for {
 		client, err := l.Accept()
 		if err != nil {
-			log.Panic(err)
+			// log.Panic(err)
 		}
 
 		go handleClientRequest(client)

@@ -3,7 +3,6 @@ package proxyhost
 import (
 	"context"
 
-	"github.com/chromedp/chromedp"
 	"github.com/chromedp/chromedp/runner"
 )
 
@@ -14,28 +13,17 @@ type Browser interface {
 }
 
 type chrome struct {
-	cdp   *chromedp.CDP
-	ctxt  context.Context
-	proxy string
+	runner *runner.Runner
+	ctxt   context.Context
+	proxy  string
 }
 
 func (c *chrome) Open(url string) error {
-	// create context
-	// ctxt, cancel := context.WithCancel(context.Background())
-	// defer cancel()
 	c.ctxt = context.Background()
 
 	// create chrome instance
 	var err error
-	c.cdp, err = chromedp.New(c.ctxt, chromedp.WithRunnerOptions(runner.Proxy(c.proxy)))
-	if err != nil {
-		return err
-	}
-
-	// run task list
-	err = c.cdp.Run(c.ctxt, chromedp.Tasks{
-		chromedp.Navigate(url),
-	})
+	c.runner, err = runner.Run(c.ctxt, runner.Proxy(c.proxy), runner.StartURL(url))
 	if err != nil {
 		return err
 	}
@@ -45,13 +33,7 @@ func (c *chrome) Open(url string) error {
 
 func (c *chrome) Close() error {
 	// shutdown chrome
-	err := c.cdp.Shutdown(c.ctxt)
-	if err != nil {
-		return err
-	}
-
-	// wait for chrome to finish
-	err = c.cdp.Wait()
+	err := c.runner.Shutdown(c.ctxt)
 	if err != nil {
 		return err
 	}
